@@ -68,6 +68,9 @@ python -m src.main
 
 ### Option 3 – Docker image
 
+
+> Security note (docker.sock): Mounting `/var/run/docker.sock` grants the container near‑root control of the host. This is intentionally NOT shown or supported on the `main` branch. If you understand the risks and still need this behavior (to let the app control Docker directly), use the dedicated `unsafe` branch, which contains explicit warnings and examples. Do not use the socket mount in production.
+
 ```bash
 docker pull alienor134/altarviewer:latest
 docker run -d \
@@ -78,7 +81,9 @@ docker run -d \
   alienor134/altarviewer:latest
 ```
 
-Replace `<mongo-host>` with the host where MongoDB is reachable from the container (for example `host.docker.internal` on Docker Desktop).
+Replace `<mongo-host>` with the host where MongoDB is reachable from the container (for example `host.docker.internal` on Docker Desktop Windows/macOS, 172.17.0.1 for Linux).
+
+
 
 ### Option 4 – Docker Compose (AltarDocker stack)
 
@@ -125,6 +130,14 @@ Then start AltarViewer via option 1–3 and connect it to the MongoDB instance f
 - **Browser Cookie Preservation**: The same database always gets the same port, preserving Omniboard customizations and cookies in your browser
 - **Automatic Conflict Resolution**: If the preferred port is unavailable, the next free port is automatically selected
 - **Port Range**: 20000-29999 (based on SHA-256 hash of database name)
+
+#### Network Binding and Exposure
+- AltarViewer server bind address:
+   - Set `BIND_HOST` to override the bind address (default: `127.0.0.1`; in Docker mode defaults to `0.0.0.0` unless overridden).
+- Omniboard container published ports:
+   - By default, Omniboard ports are published to `127.0.0.1` on the host for local-only access.
+   - To change, set `OMNIBOARD_PUBLISH_HOST` (e.g., `0.0.0.0` to expose on all interfaces, or a specific host IP).
+   - Example (all interfaces): `OMNIBOARD_PUBLISH_HOST=0.0.0.0`
 
 ## Development
 
